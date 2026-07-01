@@ -65,6 +65,21 @@ module.exports = {
         }
     },
 
+    async patch(req, res, next) {
+        try {
+            const { id } = req.params;
+            const curso = await coursesModel.update(id, req.body);
+
+            if (!curso) {
+                return res.status(404).json({ message: 'Curso nao encontrado' });
+            }
+
+            return res.json(curso);
+        } catch (error) {
+            return tratarErro(error, res, next);
+        }
+    },
+
     async destroy(req, res, next) {
         try {
             const { id } = req.params;
