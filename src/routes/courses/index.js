@@ -1,0 +1,13 @@
+const { Router } = require('express');
+const coursesController = require('../../controllers/courses');
+
+const routes = Router();
+
+routes.get('/', coursesController.index);
+routes.get('/:id', coursesController.listar);
+routes.post('/', coursesController.store);
+routes.put('/:id', coursesController.update);
+routes.patch('/:id', coursesController.patch);
+routes.delete('/:id', coursesController.destroy);
+
+module.exports = routes;

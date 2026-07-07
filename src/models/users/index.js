@@ -101,7 +101,16 @@ module.exports = class Users {
 
     async findTipoId(tipo) {
         if (Number.isInteger(Number(tipo))) {
-            return Number(tipo);
+            const { rows } = await pool.query(
+                'SELECT id_tipo FROM tipo_usuario WHERE id_tipo = $1',
+                [Number(tipo)]
+            );
+
+            if (!rows[0]) {
+                throw new Error('TIPO_USUARIO_NOT_FOUND');
+            }
+
+            return rows[0].id_tipo;
         }
 
         const { rows } = await pool.query(

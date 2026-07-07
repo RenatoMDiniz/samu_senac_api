@@ -1,13 +1,13 @@
 # SAMU Senac API
 
-API em Node.js com Express e PostgreSQL para cadastro de usuarios e tipos de usuario.
+API em Node.js com Express e SQLite para cadastro de usuarios e tipos de usuario.
 
 ## Tecnologias
 
 - Node.js
 - Express
-- PostgreSQL
-- pg
+- SQLite
+- sqlite3
 - dotenv
 - morgan
 
@@ -23,10 +23,10 @@ Crie o arquivo `.env` na raiz do projeto:
 
 ```env
 PORT=7777
-DATABASE_URL=postgres://usuario:senha@localhost:5432/nome_do_banco
+SQLITE_FILE=./database.sqlite
 ```
 
-Crie as tabelas no banco usando o arquivo:
+O banco SQLite e criado automaticamente ao iniciar a API usando o schema em:
 
 ```text
 src/database/schema.sql
@@ -389,6 +389,146 @@ DELETE /api/noticias/1
 
 Quando remove com sucesso, retorna `204 No Content`.
 
+## Cursos
+
+### Pagina de cursos
+
+Base da rota:
+
+```text
+/api/course-page
+```
+
+### Criar pagina
+
+```http
+POST /api/course-page
+```
+
+O body segue o payload completo definido no Notion, com blocos como `hero`, `overview`, `featuredCourse`, `learningPath`, `secondaryCourses` e `cta`.
+
+### Buscar pagina
+
+```http
+GET /api/course-page
+```
+
+Resposta:
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": 1,
+    "hero": {},
+    "overview": [],
+    "featuredCourse": {},
+    "learningPath": {},
+    "secondaryCourses": [],
+    "cta": {}
+  }
+}
+```
+
+### Atualizar pagina completa
+
+```http
+PUT /api/course-page/1
+```
+
+### Atualizar parcialmente
+
+```http
+PATCH /api/course-page/1
+```
+
+Body:
+
+```json
+{
+  "hero": {
+    "title": "Novo titulo do hero"
+  }
+}
+```
+
+### Remover pagina
+
+```http
+DELETE /api/course-page/1
+```
+
+Resposta:
+
+```json
+{
+  "success": true,
+  "message": "Pagina removida com sucesso"
+}
+```
+
+### Cursos secundarios
+
+Base da rota:
+
+```text
+/api/courses
+```
+
+### Criar curso
+
+```http
+POST /api/courses
+```
+
+Body:
+
+```json
+{
+  "title": "Primeiros Socorros Basicos",
+  "description": "Curso introdutorio de emergencia.",
+  "thumbnail": "/uploads/thumb1.png",
+  "status": "Publicado",
+  "duration": "2h",
+  "level": "Iniciante"
+}
+```
+
+### Listar cursos
+
+```http
+GET /api/courses
+```
+
+### Buscar curso por ID
+
+```http
+GET /api/courses/1
+```
+
+### Atualizar curso
+
+```http
+PUT /api/courses/1
+```
+
+Body:
+
+```json
+{
+  "title": "Primeiros Socorros Avancado",
+  "status": "Rascunho"
+}
+```
+
+### Remover curso
+
+```http
+DELETE /api/courses/1
+```
+
+Quando remove com sucesso, retorna `204 No Content`.
+
 ## Validacoes
 
 Alguns exemplos de erro:
@@ -422,30 +562,30 @@ Tabelas usadas:
 
 ```sql
 CREATE TABLE IF NOT EXISTS tipo_usuario (
-    id_tipo SERIAL PRIMARY KEY,
-    tipo VARCHAR(15)
+    id_tipo INTEGER PRIMARY KEY AUTOINCREMENT,
+    tipo TEXT NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS usuarios (
-    id_user SERIAL PRIMARY KEY,
-    nome_usuario VARCHAR(100),
+    id_user INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome_usuario TEXT NOT NULL,
     senha TEXT,
-    tipo INT,
-    status VARCHAR(15),
+    tipo INTEGER,
+    status TEXT,
     FOREIGN KEY (tipo) REFERENCES tipo_usuario(id_tipo)
         ON UPDATE CASCADE
         ON DELETE RESTRICT
 );
 
 CREATE TABLE IF NOT EXISTS noticias (
-    id_noticia SERIAL PRIMARY KEY,
-    titulo VARCHAR(150),
+    id_noticia INTEGER PRIMARY KEY AUTOINCREMENT,
+    titulo TEXT,
     resumo TEXT NOT NULL,
     imagem TEXT,
     banner TEXT,
     conteudo TEXT,
     link TEXT,
-    categoria VARCHAR(20) NOT NULL DEFAULT 'diaria',
+    categoria TEXT NOT NULL DEFAULT 'diaria',
     data DATE NOT NULL DEFAULT CURRENT_DATE
 );
 ```
